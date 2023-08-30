@@ -1,0 +1,23 @@
+{
+  "template": "https://github.com/scverse/cookiecutter-scverse",
+  "commit": "647649ca9f440214013ccec917c4713759223b2c",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "geneGATer",
+      "package_name": "geneGATer",
+      "project_description": "Pipeline to identify communication genes and rank them by their importance.",
+      "author_full_name": "Benjamin Weinert",
+      "author_email": "bweinert.application@gmail.com",
+      "github_user": "dertrotl",
+      "project_repo": "https://github.com/dertrotl/geneGATer",
+      "license": "MIT License",
+      "_copy_without_render": [
+        ".github/workflows/**.yaml",
+        "docs/_templates/autosummary/**.rst"
+      ],
+      "_template": "https://github.com/scverse/cookiecutter-scverse"
+    }
+  },
+  "directory": null
+}
