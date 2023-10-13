@@ -1,6 +1,5 @@
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scanpy as sc
@@ -11,8 +10,12 @@ from tqdm import tqdm
 warnings.filterwarnings("ignore")
 
 
-def _neighbour_detection(adata, groupby="cluster", nrings=2, tresh=0.5, merge=None):
-    sq.gr.spatial_neighbors(adata, n_rings=nrings, coord_type="grid", n_neighs=6, library_key="sample_name")
+def _neighbour_detection(adata, groupby="cluster", nrings=2, tresh=0.5, merge=None, library_key="sample_name"):
+    if library_key in adata.obs:
+        sq.gr.spatial_neighbors(adata, n_rings=nrings, coord_type="grid", n_neighs=6, library_key=library_key)
+    else:
+        sq.gr.spatial_neighbors(adata, n_rings=nrings, coord_type="grid", n_neighs=6)
+
     clusters = adata.obs[groupby].cat.categories
     idx = {}
     for cluster in clusters:
@@ -46,23 +49,28 @@ def _neighbour_detection(adata, groupby="cluster", nrings=2, tresh=0.5, merge=No
         sig_neighbors[cluster] = dummy
 
     sig_idx = {}
-    nonempty_donors = {}
+    # nonempty_donors = {}
     for cluster in clusters:
         if sig_neighbors[cluster] != []:
             sig_neighbors[cluster]
             sig_idx[cluster] = np.hstack([idx[d] for d in sig_neighbors[cluster]])
             sig_idx[cluster] = np.hstack([sig_idx[cluster], idx[cluster]])
             sig_idx[cluster] = np.unique(sig_idx[cluster])
-            nonempty_donors[cluster] = adata.obs["sample_name"][sig_idx[cluster]].unique()
+            # nonempty_donors[cluster] = adata.obs["sample_name"][sig_idx[cluster]].unique()
             # sq.pl.spatial_scatter(adata[sig_idx[cluster], :], img=True, color="cluster", title = f'{cluster} and significant Neighbours')
 
-    return idx, sig_idx, sig_neighbors, neighbors, nonempty_donors
+    return idx, sig_idx, sig_neighbors, neighbors  # , nonempty_donors
 
 
-def _svg_detection(adata, cluster, tresh, groupby="cluster", nrings=2, merge=None):
-    idx, sig_idx, sig_neighbors, neighbors, nonempty_donors = _neighbour_detection(
-        adata, groupby=groupby, nrings=nrings, tresh=tresh, merge=merge
+def _svg_detection(adata, cluster, tresh, groupby="cluster", nrings=2, merge=None, library_key="sample_name"):
+    # idx, sig_idx, sig_neighbors, neighbors, nonempty_donors = _neighbour_detection(
+    #    adata, groupby=groupby, nrings=nrings, tresh=tresh, merge=merge
+    # )
+
+    idx, sig_idx, sig_neighbors, neighbors = _neighbour_detection(
+        adata, groupby=groupby, nrings=nrings, tresh=tresh, merge=merge, library_key=library_key
     )
+
     cluster = cluster
     test1 = adata.obs[groupby].isin(sig_neighbors[cluster])
     test2 = adata.obs[groupby].isin([cluster])
@@ -104,14 +112,27 @@ def _svg_detection(adata, cluster, tresh, groupby="cluster", nrings=2, merge=Non
 
     de_genes = res.loc[crit, "names"]
 
-    return idx, sig_idx, sig_neighbors, neighbors, de_genes, nonempty_donors
+    return idx, sig_idx, sig_neighbors, neighbors, de_genes  # , nonempty_donors
 
 
 def _metagene_detection(
-    adata, cluster, tresh, groupby="cluster", nrings=2, merge=None, plot=False, verbosse=True, base_gene_idx=0
+    adata,
+    cluster,
+    tresh,
+    groupby="cluster",
+    nrings=2,
+    merge=None,
+    plot=False,
+    verbosse=True,
+    base_gene_idx=0,
+    library_key="sample_name",
 ):
-    idx, sig_idx, sig_neighbors, neighbors, de_genes, nonempty_donors = _svg_detection(
-        adata, cluster=cluster, tresh=tresh, groupby=groupby, nrings=nrings, merge=merge
+    # idx, sig_idx, sig_neighbors, neighbors, de_genes, nonempty_donors = _svg_detection(
+    #    adata, cluster=cluster, tresh=tresh, groupby=groupby, nrings=nrings, merge=merge, library_key=library_key
+    # )
+
+    idx, sig_idx, sig_neighbors, neighbors, de_genes = _svg_detection(
+        adata, cluster=cluster, tresh=tresh, groupby=groupby, nrings=nrings, merge=merge, library_key=library_key
     )
 
     base_gene = de_genes[de_genes.index[base_gene_idx]]
@@ -282,34 +303,35 @@ def _metagene_detection(
             gene_in_metagenes.append("Ok")
             gene_in_metagenes.append("Ok2")
 
-    if plot is True:
-        # fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
-        if merge is not None:
-            sq.pl.spatial_scatter(
-                adata,
-                img=True,
-                color=f"metagene_{k-1}",
-                title=f"Metagene {k-1} should identify cluster {cluster}+{merge[1]}.",
-                library_id=nonempty_donors[cluster],
-                library_key="sample_name",
-            )
-        else:
-            sq.pl.spatial_scatter(
-                adata,
-                img=True,
-                color=f"metagene_{k-1}",
-                title=f"Metagene {k-1} should identify cluster {cluster}.",
-                library_id=nonempty_donors[cluster],
-                library_key="sample_name",
-            )
-        sq.pl.spatial_scatter(
-            adata[neighbors[cluster], :],
-            img=True,
-            color="cluster",
-            library_id=nonempty_donors[cluster],
-            library_key="sample_name",
-        )
-        # plt.show()
+    # if plot is True:
+
+    # fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
+    #    if merge is not None:
+    #        sq.pl.spatial_scatter(
+    #            adata,
+    #            img=True,
+    #            color=f"metagene_{k-1}",
+    #            title=f"Metagene {k-1} should identify cluster {cluster}+{merge[1]}.",
+    #            library_id=nonempty_donors[cluster],
+    #            library_key="sample_name",
+    #        )
+    #    else:
+    #        sq.pl.spatial_scatter(
+    #            adata,
+    #            img=True,
+    #            color=f"metagene_{k-1}",
+    #            title=f"Metagene {k-1} should identify cluster {cluster}.",
+    #            library_id=nonempty_donors[cluster],
+    #            library_key="sample_name",
+    #        )
+    #    sq.pl.spatial_scatter(
+    #        adata[neighbors[cluster], :],
+    #        img=True,
+    #        color="cluster",
+    #        library_id=nonempty_donors[cluster],
+    #        library_key="sample_name",
+    #    )
+    # plt.show()
 
     gene_in_metagenes = gene_in_metagenes[:-2]
 
@@ -325,10 +347,12 @@ def _metagene_detection(
     gg["sort"] = sort
     gg = gg.sort_values(["sort"], ascending=[False])
 
-    return adata.var_names[gg["Genes"]], k - 1, adata.obs[f"metagene_{k-1}"], nonempty_donors
+    return adata.var_names[gg["Genes"]], k - 1, adata.obs[f"metagene_{k-1}"]  # , nonempty_donors
 
 
-def _get_quality_metric(adata, raw_cluster, main_cluster, tresh, groupby, plot=False, verbosse=True):
+def _get_quality_metric(
+    adata, raw_cluster, main_cluster, tresh, groupby, plot=False, verbosse=True, library_key="sample_name"
+):
     metagenes_per_comb = pd.DataFrame()
     genes_of_metagenes = {}
     main_cluster = main_cluster
@@ -347,7 +371,20 @@ def _get_quality_metric(adata, raw_cluster, main_cluster, tresh, groupby, plot=F
                 # print("Test 1")
                 adata.obs[groupby] = raw_cluster
                 # print("Test 2")
-                test, k, metagene, nonempty_donors = _metagene_detection(
+                # test, k, metagene, nonempty_donors = _metagene_detection(
+                #    adata,
+                #    cluster=main_cluster,
+                #    tresh=tresh,
+                #    groupby=groupby,
+                #    nrings=2,
+                #    merge=[main_cluster, cluster],
+                #    plot=plot,
+                #    verbosse=verbosse,
+                #    base_gene_idx=b,
+                #    library_key=library_key
+                # )
+
+                test, k, metagene = _metagene_detection(
                     adata,
                     cluster=main_cluster,
                     tresh=tresh,
@@ -357,27 +394,28 @@ def _get_quality_metric(adata, raw_cluster, main_cluster, tresh, groupby, plot=F
                     plot=plot,
                     verbosse=verbosse,
                     base_gene_idx=b,
+                    library_key=library_key,
                 )
                 adata.obs["metagene"] = metagene
                 # print("Test 3")
                 median_value = adata.obs.loc[adata.obs[groupby] == main_cluster]["metagene"].median()
                 min_value = adata.obs.loc[adata.obs[groupby] == main_cluster]["metagene"].min()
 
-                if plot is True:
-                    fig, ax = plt.subplots()
-                    ax.axhline(y=median_value, color="red", linestyle="--", zorder=100)
-                    ax.axhline(y=min_value, color="green", linestyle="--", zorder=101)
-                    sc.pl.violin(
-                        adata,
-                        "metagene",
-                        groupby=groupby,
-                        rotation=90,
-                        inner="box",
-                        stripplot=False,
-                        ax=ax,
-                        library_id=nonempty_donors,
-                        library_key="sample_name",
-                    )
+                # if plot is True:
+                #    fig, ax = plt.subplots()
+                #    ax.axhline(y=median_value, color="red", linestyle="--", zorder=100)
+                #    ax.axhline(y=min_value, color="green", linestyle="--", zorder=101)
+                #    sc.pl.violin(
+                #        adata,
+                #        "metagene",
+                #        groupby=groupby,
+                #        rotation=90,
+                #        inner="box",
+                #        stripplot=False,
+                #        ax=ax,
+                #        library_id=nonempty_donors,
+                #        library_key="sample_name",
+                #    )
 
                 dummy = pd.DataFrame()
                 dummy["cluster"] = adata.obs[groupby]
@@ -398,7 +436,9 @@ def _get_quality_metric(adata, raw_cluster, main_cluster, tresh, groupby, plot=F
     return metagenes_per_comb, genes_of_metagenes, spots_above_median, spots_above_min
 
 
-def getComGenes(adata: AnnData, raw_cluster, tresh=0, groupby="cluster", plot=False, verbosse=True):
+def getComGenes(
+    adata: AnnData, raw_cluster, tresh=0, groupby="cluster", plot=False, verbosse=True, library_key="sample_name"
+):
     """Extract communication metagenes.
 
     Parameters
@@ -415,7 +455,8 @@ def getComGenes(adata: AnnData, raw_cluster, tresh=0, groupby="cluster", plot=Fa
          True or false if you want progress plots of the metagene iterations.
      verbosse
          True or false if you want error messages printed.
-
+    library_key
+         Key for donor names.
 
     Returns
     -------
@@ -442,7 +483,14 @@ def getComGenes(adata: AnnData, raw_cluster, tresh=0, groupby="cluster", plot=Fa
 
     for cluster in clusters:
         metagene_per_comb, genes_of_metagenes, spots_above_median, spots_above_min = _get_quality_metric(
-            adata, raw_cluster, main_cluster=cluster, tresh=tresh, groupby=groupby, plot=plot, verbosse=verbosse
+            adata,
+            raw_cluster,
+            main_cluster=cluster,
+            tresh=tresh,
+            groupby=groupby,
+            plot=plot,
+            verbosse=verbosse,
+            library_key=library_key,
         )
         median_metric_df[cluster] = spots_above_median
         min_metric_df[cluster] = spots_above_min

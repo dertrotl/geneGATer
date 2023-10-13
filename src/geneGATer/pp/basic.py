@@ -42,7 +42,12 @@ def pre_clustering(
     Raw pre-clustering.
     """
     nn_graph_genes = adata.obsp[connectivities]
-    sq.gr.spatial_neighbors(adata, n_rings=n_rings, coord_type="grid", n_neighs=n_neighs, library_key=library_key)
+
+    if library_key in adata.obs:
+        sq.gr.spatial_neighbors(adata, n_rings=n_rings, coord_type="grid", n_neighs=n_neighs, library_key=library_key)
+    else:
+        sq.gr.spatial_neighbors(adata, n_rings=n_rings, coord_type="grid", n_neighs=n_neighs)
+
     nn_graph_space = adata.obsp[spatial_connectivities]
     alpha = alpha
     joint_graph = (1 - alpha) * nn_graph_genes + alpha * nn_graph_space
