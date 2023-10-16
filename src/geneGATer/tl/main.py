@@ -22,7 +22,7 @@ from tqdm.auto import tqdm
 from umap import UMAP
 
 from geneGATer.pp import NegLogNegBinLoss, _r_squared_linreg
-from geneGATer.tl import GAT, GAT_linear, GAT_linear_negbin, GAT_negbin
+from geneGATer.tl.models import GAT, GAT_linear, GAT_linear_negbin, GAT_negbin
 
 warnings.filterwarnings("ignore")
 wandb.login()
@@ -842,4 +842,4 @@ def learn_model(
     wandb.log({"Top ten input genes list (Saliency Scores)": wandb.Table(dataframe=df)})
     print("done.\n")
 
-    return model
+    return model, data
