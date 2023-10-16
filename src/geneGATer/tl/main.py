@@ -1,32 +1,23 @@
 import random
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import scanpy as sc
-import seaborn as sns
 import squidpy as sq
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch_geometric.utils as pyg_utils
 import wandb
-from matplotlib.cm import get_cmap
-from sklearn import preprocessing
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
 from sklearn.metrics import r2_score
 from torch_geometric.data import Data
 from tqdm.auto import tqdm
-from umap import UMAP
 
 from geneGATer.pp import NegLogNegBinLoss, _r_squared_linreg
 from geneGATer.tl.models import GAT, GAT_linear, GAT_linear_negbin, GAT_negbin
 
 warnings.filterwarnings("ignore")
-wandb.login()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# wandb.login()
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def learn_model(
@@ -48,7 +39,7 @@ def learn_model(
     cluster_key="cluster",
     data_name="Adata Dataset",
     project="my_model",
-    compare_gene_list=None,
+    # compare_gene_list=None,
 ):
     """Learn a model with the given parameters to rank input genes list by importance.
 
@@ -104,123 +95,124 @@ def learn_model(
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     torch.backends.cudnn.deterministic = True
-
+    #
     random.seed(seed)
+    #
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    k = top
-
-    if compare_gene_list is None:
-        gbm_genes = [
-            "FCGBP",
-            "TIMP1",
-            "LGALS1",
-            "COL1A1",
-            "CANX",
-            "MIF",
-            "SERPINE1",
-            "SLC1A3",
-            "RPS27A",
-            "IGFBP2",
-            "SLC17A7",
-            "SNAP25",
-            "PCSK1N",
-            "MGP",
-            "EGFR",
-            "MT2A",
-            "CHI3L1",
-            "SYT1",
-            "TMSB10",
-            "CSF1R",
-            "HSP90AA1",
-            "S100A11",
-            "RPS11",
-            "IGFBP5",
-            "S100B",
-            "UBC",
-            "PMP2",
-            "FTH1",
-            "CD81",
-            "CXCL14",
-            "UBB",
-            "NPTX2",
-            "EGR1",
-            "PTX3",
-            "THY1",
-            "BIN1",
-            "NES",
-            "COL1A2",
-            "VASP",
-            "HSP90B1",
-            "APOD",
-            "PDPN",
-            "OLIG1",
-            "SLC1A2",
-            "COL3A1",
-            "PPIB",
-            "HNRNPA2B1",
-            "BSG",
-            "CD44",
-            "C1QB",
-            "EEF2",
-            "ATP1A2",
-            "STMN1",
-            "IGFBP7",
-            "COL4A2",
-            "HTRA1",
-            "CTSB",
-            "ENO2",
-            "CD163",
-            "GBP1",
-            "PTGDS",
-            "FN1",
-            "LDHA",
-            "C1QA",
-            "ZYX",
-            "ANXA1",
-            "VIM",
-            "BCAN",
-            "COL4A1",
-            "TNFRSF12A",
-            "CPLX2",
-            "HLA-A",
-            "GADD45A",
-            "HOPX",
-            "TUBB",
-            "IGFBP3",
-            "IDH1",
-            "PLP1",
-            "NDUFA4",
-            "RCAN1",
-            "TUBB2A",
-            "CD9",
-            "PTN",
-            "NNMT",
-            "DIRAS3",
-            "GAP43",
-            "SPP1",
-            "SERPINA3",
-            "VSNL1",
-            "RPLP1",
-            "HLA-DRA",
-            "SOD2",
-            "HLA-B",
-            "HLA-DPA1",
-            "RPL18",
-            "ADGRB1",
-            "RPLP0",
-            "CD63",
-            "GPR37L1",
-            "GSN",
-            "FTL",
-            "PTPRZ1",
-            "CCN1",
-            "SPARCL1",
-            "CRYAB",
-            "NDRG2",
-        ]
-    else:
-        gbm_genes = compare_gene_list
-
+    #    k = top
+    #
+    #    if compare_gene_list is None:
+    #        gbm_genes = [
+    #            "FCGBP",
+    #            "TIMP1",
+    #            "LGALS1",
+    #            "COL1A1",
+    #            "CANX",
+    #            "MIF",
+    #            "SERPINE1",
+    #            "SLC1A3",
+    #            "RPS27A",
+    #            "IGFBP2",
+    #            "SLC17A7",
+    #            "SNAP25",
+    #            "PCSK1N",
+    #            "MGP",
+    #            "EGFR",
+    #            "MT2A",
+    #            "CHI3L1",
+    #            "SYT1",
+    #            "TMSB10",
+    #            "CSF1R",
+    #            "HSP90AA1",
+    #            "S100A11",
+    #            "RPS11",
+    #            "IGFBP5",
+    #            "S100B",
+    #            "UBC",
+    #            "PMP2",
+    #            "FTH1",
+    #            "CD81",
+    #            "CXCL14",
+    #            "UBB",
+    #            "NPTX2",
+    #            "EGR1",
+    #            "PTX3",
+    #            "THY1",
+    #            "BIN1",
+    #            "NES",
+    #            "COL1A2",
+    #            "VASP",
+    #            "HSP90B1",
+    #            "APOD",
+    #            "PDPN",
+    #            "OLIG1",
+    #            "SLC1A2",
+    #            "COL3A1",
+    #            "PPIB",
+    #            "HNRNPA2B1",
+    #            "BSG",
+    #            "CD44",
+    #            "C1QB",
+    #            "EEF2",
+    #            "ATP1A2",
+    #            "STMN1",
+    #            "IGFBP7",
+    #            "COL4A2",
+    #            "HTRA1",
+    #            "CTSB",
+    #            "ENO2",
+    #            "CD163",
+    #            "GBP1",
+    #            "PTGDS",
+    #            "FN1",
+    #            "LDHA",
+    #            "C1QA",
+    #            "ZYX",
+    #            "ANXA1",
+    #            "VIM",
+    #            "BCAN",
+    #            "COL4A1",
+    #            "TNFRSF12A",
+    #            "CPLX2",
+    #            "HLA-A",
+    #            "GADD45A",
+    #            "HOPX",
+    #            "TUBB",
+    #            "IGFBP3",
+    #            "IDH1",
+    #            "PLP1",
+    #            "NDUFA4",
+    #            "RCAN1",
+    #            "TUBB2A",
+    #            "CD9",
+    #            "PTN",
+    #            "NNMT",
+    #            "DIRAS3",
+    #            "GAP43",
+    #            "SPP1",
+    #            "SERPINA3",
+    #            "VSNL1",
+    #            "RPLP1",
+    #            "HLA-DRA",
+    #            "SOD2",
+    #            "HLA-B",
+    #            "HLA-DPA1",
+    #            "RPL18",
+    #            "ADGRB1",
+    #            "RPLP0",
+    #            "CD63",
+    #            "GPR37L1",
+    #            "GSN",
+    #            "FTL",
+    #            "PTPRZ1",
+    #            "CCN1",
+    #            "SPARCL1",
+    #            "CRYAB",
+    #            "NDRG2",
+    #        ]
+    #    else:
+    #        gbm_genes = compare_gene_list
+    #
     if loss == "negbin":
         loss_fct = NegLogNegBinLoss()
     elif loss == "mse":
@@ -463,383 +455,384 @@ def learn_model(
 
     # Build, train and analyze the model with the pipeline
     model = model_pipeline(config, data, project)
-
-    print("Create Attention Matrix plot...")
-    # Model Eval
-    model.eval()
-
-    with torch.no_grad():
-        (index, att) = model(data.x, data.edge_index)[1]
-
-    if heads != 1:
-        att_mean = att.mean(dim=-1)
-        adj = pyg_utils.to_scipy_sparse_matrix(data.edge_index, att_mean)
-    else:
-        adj = pyg_utils.to_scipy_sparse_matrix(data.edge_index, att)
-
-    # adj = pyg_utils.to_scipy_sparse_matrix(index.data, att.data)
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    # plt.figure(figsize=(14, 14))
-    ax = sns.heatmap(adj.todense(), cmap="Reds")
-    ax.set_aspect("equal")
-    # plt.savefig('/Users/benjaminweinert/Desktop/test_heatmap.png', dpi=600)
-    # plt.show()
-    fig.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Attention Matrix": wandb.Image("plot.png")})
-    # wandb.log({"Attention Matrix": fig})
-    print("done.\n")
-
-    print("Create Attention PCA...")
-    scaled_adj = preprocessing.scale(np.asarray(adj.todense()))
-    adj_eval = pd.DataFrame(scaled_adj)
-    pca = PCA(n_components=700)  # create a PCA object
-    pca.fit(adj_eval)  # do the math
-    pca_data = pca.transform(adj_eval)  # get PCA coordinates for scaled_data
-
-    print("done.\n")
-
-    print("Create PCA Elbow plot...")
-    # The following code constructs the Scree plot
-    per_var = np.round(pca.explained_variance_ratio_ * 100, decimals=1)
-    labels = ["PC" + str(x) for x in range(1, len(per_var) + 1)]
-
-    # plt.bar(x=range(1,len(per_var)+1), height=per_var, tick_label=labels)
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    ax.plot(range(1, len(per_var) + 1), per_var)
-    ax.set_ylabel("Percentage of Explained Variance")
-    ax.set_xlabel("Principal Component")
-    # plt.show()
-    wandb.log({"Attention PCA": wandb.Image(fig)})
-    print("done.\n")
-
-    print("Create Attention UMAP plot...")
-    # Adj UMAP
-    umap = UMAP(n_components=2, init="random", random_state=0).fit_transform(pca_data)
-
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    name = "tab20"
-    cmap = get_cmap(name)
-    colors = cmap.colors
-    ax.set_prop_cycle(color=colors)
-    ax.set_axis_off()
-    # plt.figure(figsize=(10, 10))
-
-    fig.set_size_inches(10, 10)
-    plt.subplots_adjust(right=0.7)
-
-    groups = pd.DataFrame(umap, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
-    for name, points in groups:
-        ax.scatter(points.x, points.y, label=name, s=20)
-
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    fig.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Attention UMAP": wandb.Image("plot.png")})
-
-    # wandb.log({"Attention UMAP": wandb.Image(fig)})
-    # wandb.log({"Attention UMAP": fig})
-    print("done.\n")
-
-    print("Create Attention TSNE plot...")
-    # Adj TSNE
-    tsne = TSNE(n_components=2, learning_rate="auto", init="pca").fit_transform(pca_data)
-
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    name = "tab20"
-    cmap = get_cmap(name)
-    colors = cmap.colors
-    ax.set_prop_cycle(color=colors)
-    ax.set_axis_off()
-    # plt.axis('off')
-    # plt.figure(figsize=(10, 10))
-
-    fig.set_size_inches(10, 10)
-    plt.subplots_adjust(right=0.7)
-
-    groups = pd.DataFrame(tsne, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
-    for name, points in groups:
-        ax.scatter(points.x, points.y, label=name, s=20)
-
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    fig.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Attention TSNE": wandb.Image("plot.png")})
-
-    # wandb.log({"Attention TSNE": wandb.Image(fig)})
-    # wandb.log({"Attention TSNE": fig})
-    print("done.\n")
-
-    pred = model(data.x, data.edge_index)[0]
-    if model_type in ["GAT_negbin", "GAT_linear_negbin"]:
-        pred, var = pred
-    pred = pred.data
-
-    print("Model PCA...")
-    scaled_data_2 = preprocessing.scale(pred.cpu())
-    pca_2 = PCA()
-    pca_2 = PCA(n_components=10)  # create a PCA object
-    pca_2.fit(scaled_data_2)  # do the math
-    pca_data_2 = pca_2.transform(scaled_data_2)  # get PCA coordinates for scaled_data
-    print("done.\n")
-
-    print("Create Model PCA Elbow plot...")
-    # The following code constructs the Scree plot
-    per_var_2 = np.round(pca_2.explained_variance_ratio_ * 100, decimals=1)
-    labels = ["PC" + str(x) for x in range(1, len(per_var_2) + 1)]
-
-    # plt.bar(x=range(1,len(per_var)+1), height=per_var, tick_label=labels)
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    ax.plot(range(1, len(per_var_2) + 1), per_var_2)
-    ax.set_ylabel("Percentage of Explained Variance")
-    ax.set_xlabel("Principal Component")
-    plt.show()
-    wandb.log({"Model PCA": wandb.Image(fig)})
-    # wandb.log({"Model PCA": fig})
-    print("done.\n")
-
-    print("Create Model UMAP plot...")
-    # Trained UMAP
-    umap = UMAP(n_components=2, init="random", random_state=0).fit_transform(pca_data_2[:, :7])
-
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    name = "tab20"
-    cmap = get_cmap(name)
-    colors = cmap.colors
-    ax.set_prop_cycle(color=colors)
-    ax.set_axis_off()
-    # plt.axis('off')
-    # plt.figure(figsize=(10, 10))
-
-    fig.set_size_inches(10, 10)
-    plt.subplots_adjust(right=0.7)
-
-    groups = pd.DataFrame(umap, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
-    for name, points in groups:
-        ax.scatter(points.x, points.y, label=name, s=20)
-
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    fig.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Model UMAP": wandb.Image("plot.png")})
-
-    # wandb.log({"Model UMAP": wandb.Image(fig)})
-    # wandb.log({"Model UMAP": fig})
-    print("done.\n")
-
-    print("Create Model TSNE plot...")
-    # Adj TSNE
-    tsne = TSNE(n_components=2, learning_rate="auto", init="pca").fit_transform(pca_data_2[:, :7])
-
-    plt.rcParams["font.size"] = 14
-    fig, ax = plt.subplots()
-    name = "tab20"
-    cmap = get_cmap(name)
-    colors = cmap.colors
-    ax.set_prop_cycle(color=colors)
-    ax.set_axis_off()
-    # plt.axis('off')
-    # plt.figure(figsize=(10, 10))
-
-    fig.set_size_inches(10, 10)
-    plt.subplots_adjust(right=0.7)
-
-    groups = pd.DataFrame(tsne, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
-    for name, points in groups:
-        ax.scatter(points.x, points.y, label=name, s=20)
-
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    fig.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Model TSNE": wandb.Image("plot.png")})
-
-    # wandb.log({"Model TSNE": wandb.Image(fig)})
-    # wandb.log({"Model TSNE": fig})
-    print("done.\n")
-
-    # print("Create Tissue plot...")
-    # if tissue!=0:
-    #    sample_name_plot = adata.obs["sample_name"].cat.categories[tissue-1]
+    wandb.finish()
+    #
+    # print("Create Attention Matrix plot...")
+    ## Model Eval
+    # model.eval()
+    #
+    # with torch.no_grad():
+    #    (index, att) = model(data.x, data.edge_index)[1]
+    #
+    # if heads != 1:
+    #    att_mean = att.mean(dim=-1)
+    #    adj = pyg_utils.to_scipy_sparse_matrix(data.edge_index, att_mean)
     # else:
-    #    sample_name_plot = ["AT3-BRA5-FO-1_0","AT3-BRA5-FO-1_1","AT3-BRA5-FO-3_1","AT3-BRA5-FO-4_1"]
-
-    # plt.rcParams['font.size'] = 14
-
-    # if dataset == "GBM":
-    #    sq.pl.spatial_scatter(adata, color="cluster", library_id = sample_name_plot, library_key="sample_name")
-    # else:
-    #    sq.pl.spatial_scatter(adata, color="cluster")
-
-    # plt.savefig('plot.png', format='png', bbox_inches='tight')
-    # wandb.log({"Tissue plot": wandb.Image('plot.png')})
+    #    adj = pyg_utils.to_scipy_sparse_matrix(data.edge_index, att)
+    #
+    ## adj = pyg_utils.to_scipy_sparse_matrix(index.data, att.data)
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    ## plt.figure(figsize=(14, 14))
+    # ax = sns.heatmap(adj.todense(), cmap="Reds")
+    # ax.set_aspect("equal")
+    ## plt.savefig('/Users/benjaminweinert/Desktop/test_heatmap.png', dpi=600)
+    ## plt.show()
+    # fig.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Attention Matrix": wandb.Image("plot.png")})
+    ## wandb.log({"Attention Matrix": fig})
     # print("done.\n")
-
-    print("Top Ten most important genes receiver and sender nodes:")
-
-    w = model.conv2.state_dict()["lin_l.weight"].abs().detach().cpu().numpy()
-
-    # Get sum of each column (each gene across all rows)
-    sums = w.sum(axis=0)
-
-    # Get indices that would sort the sums in descending order
-    sorted_indices = sums.argsort()[::-1]
-
-    # Get the top-k indices
-    top_k_indices = sorted_indices[:k]
-
-    # Get the corresponding top-k gene names
-    df = pd.DataFrame({"test": gene_list})
-    gene_plot_name_w = df.iloc[top_k_indices]["test"].tolist()
-
-    # Get the corresponding top-k columns from w
-    matrix_subset = w[:, top_k_indices]
-
-    # Create a new dataframe with the subset of the matrix and gene names as column names
-    df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w)
-
-    # Create violin plot
-    plt.rcParams["font.size"] = 14
-    plt.figure(figsize=(10, 6))
-    # ax = sns.violinplot(data=df_plot.iloc[:,:10], inner="box", stripplot=False)
-    ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
-    plt.title("Weight Distribution Top 10 Receiving Genes")
-    plt.xlabel("Genes")
-    plt.ylabel("W_r Values")
-
-    labels = [item.get_text() for item in ax.get_xticklabels()]
-
-    # Replace labels in list with * if they are in gbm_genes
-    labels = [label + "*" if label in gbm_genes else label for label in labels]
-
-    # Set the new labels
-    ax.set_xticklabels(labels)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-    plt.tight_layout()
-
-    plt.show()
-
-    plt.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Violin W_r": wandb.Image("plot.png")})
-
-    # Get absolute weights
-    w2 = model.conv2.state_dict()["lin_r.weight"].abs().detach().cpu().numpy()
-
-    # Get sum of each column (each gene across all rows)
-    sums = w2.sum(axis=0)
-
-    # Get indices that would sort the sums in descending order
-    sorted_indices = sums.argsort()[::-1]
-
-    # Get the top-k indices
-    top_k_indices = sorted_indices[:k]
-
-    # Get the corresponding top-k gene names
-    df = pd.DataFrame({"test": gene_list})
-    gene_plot_name_w2 = df.iloc[top_k_indices]["test"].tolist()
-
-    # Get the corresponding top-k columns from w
-    matrix_subset = w2[:, top_k_indices]
-
-    # Create a new dataframe with the subset of the matrix and gene names as column names
-    df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w2)
-
-    # Create violin plot
-    plt.rcParams["font.size"] = 14
-    plt.figure(figsize=(10, 6))
-    # ax = sns.violinplot(data=df_plot.iloc[:,:10], inner="box", stripplot=False)
-    ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
-    plt.title("Weight Distribution Top 10 Sender Genes")
-    plt.xlabel("Genes")
-    plt.ylabel("W_s Values")
-
-    labels = [item.get_text() for item in ax.get_xticklabels()]
-
-    # Replace labels in list with * if they are in gbm_genes
-    labels = [label + "*" if label in gbm_genes else label for label in labels]
-
-    # Set the new labels
-    ax.set_xticklabels(labels)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-    plt.tight_layout()
-
-    plt.show()
-
-    plt.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Violin W_s": wandb.Image("plot.png")})
-
-    df = pd.DataFrame({"Receiver Genes": gene_plot_name_w, "Sender Genes": gene_plot_name_w2})
-    wandb.log({"Top ten weighted genes": wandb.Table(dataframe=df)})
-    df = pd.DataFrame({"all_genes": list(set(gene_plot_name_w).union(gene_plot_name_w2))})
-    wandb.log({"Top ten weighted genes list": wandb.Table(dataframe=df)})
-    print("done.\n")
-
-    print("Top k most important input genes (Saliency):")
-
-    def compute_saliency(model, data):
-        model.eval()
-        model.zero_grad()
-
-        data.x = data.x.clone().detach().requires_grad_(True)
-
-        # Forward pass through the model
-        output = model(data.x, data.edge_index)[0]
-        if model_type in ["GAT_negbin", "GAT_linear_negbin"]:
-            output, _ = output
-
-        output = torch.sum(output)
-
-        output.backward()
-
-        saliency = data.x.grad.detach().abs()
-
-        return saliency.cpu().numpy()
-
-    # Get saliency
-    sal = compute_saliency(model, data)
-
-    # Get sum of each column (each gene across all rows)
-    sums = sal.sum(axis=0)
-
-    # Get indices that would sort the sums in descending order
-    sorted_indices = sums.argsort()[::-1]
-
-    # Get the top-k indices
-    top_k_indices = sorted_indices[:k]
-
-    # Get the corresponding top-k gene names
-    df = pd.DataFrame({"test": gene_list})
-    gene_plot_name_w = df.iloc[top_k_indices]["test"].tolist()
-
-    # Get the corresponding top-k columns from w
-    matrix_subset = sal[:, top_k_indices]
-
-    # Create a new dataframe with' the subset of the matrix and gene names as column names
-    df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w)
-
-    plt.rcParams["font.size"] = 14
-    plt.figure(figsize=(10, 6))
-    ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
-    # ax = sns.boxplot(data=df_plot.iloc[:,:])
-    plt.title("Saliency Distributions Top 10 Input Genes")
-    plt.xlabel("Genes")
-    plt.ylabel("Saliency Scores")
-
-    labels = [item.get_text() for item in ax.get_xticklabels()]
-
-    # Replace labels in list with * if they are in gbm_genes
-    labels = [label + "*" if label in gbm_genes else label for label in labels]
-
-    # Set the new labels
-    ax.set_xticklabels(labels)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-    plt.tight_layout()
-
-    plt.savefig("plot.png", format="png", bbox_inches="tight")
-    wandb.log({"Saliency Boxplots": wandb.Image("plot.png")})
-
-    df = pd.DataFrame({"all_genes": gene_plot_name_w})
-    wandb.log({"Top ten input genes list (Saliency Scores)": wandb.Table(dataframe=df)})
-    print("done.\n")
+    #
+    # print("Create Attention PCA...")
+    # scaled_adj = preprocessing.scale(np.asarray(adj.todense()))
+    # adj_eval = pd.DataFrame(scaled_adj)
+    # pca = PCA(n_components=700)  # create a PCA object
+    # pca.fit(adj_eval)  # do the math
+    # pca_data = pca.transform(adj_eval)  # get PCA coordinates for scaled_data
+    #
+    # print("done.\n")
+    #
+    # print("Create PCA Elbow plot...")
+    ## The following code constructs the Scree plot
+    # per_var = np.round(pca.explained_variance_ratio_ * 100, decimals=1)
+    # labels = ["PC" + str(x) for x in range(1, len(per_var) + 1)]
+    #
+    ## plt.bar(x=range(1,len(per_var)+1), height=per_var, tick_label=labels)
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # ax.plot(range(1, len(per_var) + 1), per_var)
+    # ax.set_ylabel("Percentage of Explained Variance")
+    # ax.set_xlabel("Principal Component")
+    ## plt.show()
+    # wandb.log({"Attention PCA": wandb.Image(fig)})
+    # print("done.\n")
+    #
+    # print("Create Attention UMAP plot...")
+    ## Adj UMAP
+    # umap = UMAP(n_components=2, init="random", random_state=0).fit_transform(pca_data)
+    #
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # name = "tab20"
+    # cmap = get_cmap(name)
+    # colors = cmap.colors
+    # ax.set_prop_cycle(color=colors)
+    # ax.set_axis_off()
+    ## plt.figure(figsize=(10, 10))
+    #
+    # fig.set_size_inches(10, 10)
+    # plt.subplots_adjust(right=0.7)
+    #
+    # groups = pd.DataFrame(umap, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
+    # for name, points in groups:
+    #    ax.scatter(points.x, points.y, label=name, s=20)
+    #
+    # ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    # fig.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Attention UMAP": wandb.Image("plot.png")})
+    #
+    ## wandb.log({"Attention UMAP": wandb.Image(fig)})
+    ## wandb.log({"Attention UMAP": fig})
+    # print("done.\n")
+    #
+    # print("Create Attention TSNE plot...")
+    ## Adj TSNE
+    # tsne = TSNE(n_components=2, learning_rate="auto", init="pca").fit_transform(pca_data)
+    #
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # name = "tab20"
+    # cmap = get_cmap(name)
+    # colors = cmap.colors
+    # ax.set_prop_cycle(color=colors)
+    # ax.set_axis_off()
+    ## plt.axis('off')
+    ## plt.figure(figsize=(10, 10))
+    #
+    # fig.set_size_inches(10, 10)
+    # plt.subplots_adjust(right=0.7)
+    #
+    # groups = pd.DataFrame(tsne, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
+    # for name, points in groups:
+    #    ax.scatter(points.x, points.y, label=name, s=20)
+    #
+    # ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    # fig.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Attention TSNE": wandb.Image("plot.png")})
+    #
+    ## wandb.log({"Attention TSNE": wandb.Image(fig)})
+    ## wandb.log({"Attention TSNE": fig})
+    # print("done.\n")
+    #
+    # pred = model(data.x, data.edge_index)[0]
+    # if model_type in ["GAT_negbin", "GAT_linear_negbin"]:
+    #    pred, var = pred
+    # pred = pred.data
+    #
+    # print("Model PCA...")
+    # scaled_data_2 = preprocessing.scale(pred.cpu())
+    # pca_2 = PCA()
+    # pca_2 = PCA(n_components=10)  # create a PCA object
+    # pca_2.fit(scaled_data_2)  # do the math
+    # pca_data_2 = pca_2.transform(scaled_data_2)  # get PCA coordinates for scaled_data
+    # print("done.\n")
+    #
+    # print("Create Model PCA Elbow plot...")
+    ## The following code constructs the Scree plot
+    # per_var_2 = np.round(pca_2.explained_variance_ratio_ * 100, decimals=1)
+    # labels = ["PC" + str(x) for x in range(1, len(per_var_2) + 1)]
+    #
+    ## plt.bar(x=range(1,len(per_var)+1), height=per_var, tick_label=labels)
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # ax.plot(range(1, len(per_var_2) + 1), per_var_2)
+    # ax.set_ylabel("Percentage of Explained Variance")
+    # ax.set_xlabel("Principal Component")
+    # plt.show()
+    # wandb.log({"Model PCA": wandb.Image(fig)})
+    ## wandb.log({"Model PCA": fig})
+    # print("done.\n")
+    #
+    # print("Create Model UMAP plot...")
+    ## Trained UMAP
+    # umap = UMAP(n_components=2, init="random", random_state=0).fit_transform(pca_data_2[:, :7])
+    #
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # name = "tab20"
+    # cmap = get_cmap(name)
+    # colors = cmap.colors
+    # ax.set_prop_cycle(color=colors)
+    # ax.set_axis_off()
+    ## plt.axis('off')
+    ## plt.figure(figsize=(10, 10))
+    #
+    # fig.set_size_inches(10, 10)
+    # plt.subplots_adjust(right=0.7)
+    #
+    # groups = pd.DataFrame(umap, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
+    # for name, points in groups:
+    #    ax.scatter(points.x, points.y, label=name, s=20)
+    #
+    # ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    # fig.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Model UMAP": wandb.Image("plot.png")})
+    #
+    ## wandb.log({"Model UMAP": wandb.Image(fig)})
+    ## wandb.log({"Model UMAP": fig})
+    # print("done.\n")
+    #
+    # print("Create Model TSNE plot...")
+    ## Adj TSNE
+    # tsne = TSNE(n_components=2, learning_rate="auto", init="pca").fit_transform(pca_data_2[:, :7])
+    #
+    # plt.rcParams["font.size"] = 14
+    # fig, ax = plt.subplots()
+    # name = "tab20"
+    # cmap = get_cmap(name)
+    # colors = cmap.colors
+    # ax.set_prop_cycle(color=colors)
+    # ax.set_axis_off()
+    ## plt.axis('off')
+    ## plt.figure(figsize=(10, 10))
+    #
+    # fig.set_size_inches(10, 10)
+    # plt.subplots_adjust(right=0.7)
+    #
+    # groups = pd.DataFrame(tsne, columns=["x", "y"]).assign(category=list(adata.obs[cluster_key])).groupby("category")
+    # for name, points in groups:
+    #    ax.scatter(points.x, points.y, label=name, s=20)
+    #
+    # ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    # fig.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Model TSNE": wandb.Image("plot.png")})
+    #
+    ## wandb.log({"Model TSNE": wandb.Image(fig)})
+    ## wandb.log({"Model TSNE": fig})
+    # print("done.\n")
+    #
+    ## print("Create Tissue plot...")
+    ## if tissue!=0:
+    ##    sample_name_plot = adata.obs["sample_name"].cat.categories[tissue-1]
+    ## else:
+    ##    sample_name_plot = ["AT3-BRA5-FO-1_0","AT3-BRA5-FO-1_1","AT3-BRA5-FO-3_1","AT3-BRA5-FO-4_1"]
+    #
+    ## plt.rcParams['font.size'] = 14
+    #
+    ## if dataset == "GBM":
+    ##    sq.pl.spatial_scatter(adata, color="cluster", library_id = sample_name_plot, library_key="sample_name")
+    ## else:
+    ##    sq.pl.spatial_scatter(adata, color="cluster")
+    #
+    ## plt.savefig('plot.png', format='png', bbox_inches='tight')
+    ## wandb.log({"Tissue plot": wandb.Image('plot.png')})
+    ## print("done.\n")
+    #
+    # print("Top Ten most important genes receiver and sender nodes:")
+    #
+    # w = model.conv2.state_dict()["lin_l.weight"].abs().detach().cpu().numpy()
+    #
+    ## Get sum of each column (each gene across all rows)
+    # sums = w.sum(axis=0)
+    #
+    ## Get indices that would sort the sums in descending order
+    # sorted_indices = sums.argsort()[::-1]
+    #
+    ## Get the top-k indices
+    # top_k_indices = sorted_indices[:k]
+    #
+    ## Get the corresponding top-k gene names
+    # df = pd.DataFrame({"test": gene_list})
+    # gene_plot_name_w = df.iloc[top_k_indices]["test"].tolist()
+    #
+    ## Get the corresponding top-k columns from w
+    # matrix_subset = w[:, top_k_indices]
+    #
+    ## Create a new dataframe with the subset of the matrix and gene names as column names
+    # df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w)
+    #
+    ## Create violin plot
+    # plt.rcParams["font.size"] = 14
+    # plt.figure(figsize=(10, 6))
+    ## ax = sns.violinplot(data=df_plot.iloc[:,:10], inner="box", stripplot=False)
+    # ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
+    # plt.title("Weight Distribution Top 10 Receiving Genes")
+    # plt.xlabel("Genes")
+    # plt.ylabel("W_r Values")
+    #
+    # labels = [item.get_text() for item in ax.get_xticklabels()]
+    #
+    ## Replace labels in list with * if they are in gbm_genes
+    # labels = [label + "*" if label in gbm_genes else label for label in labels]
+    #
+    ## Set the new labels
+    # ax.set_xticklabels(labels)
+    # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
+    # plt.tight_layout()
+    #
+    # plt.show()
+    #
+    # plt.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Violin W_r": wandb.Image("plot.png")})
+    #
+    ## Get absolute weights
+    # w2 = model.conv2.state_dict()["lin_r.weight"].abs().detach().cpu().numpy()
+    #
+    ## Get sum of each column (each gene across all rows)
+    # sums = w2.sum(axis=0)
+    #
+    ## Get indices that would sort the sums in descending order
+    # sorted_indices = sums.argsort()[::-1]
+    #
+    ## Get the top-k indices
+    # top_k_indices = sorted_indices[:k]
+    #
+    ## Get the corresponding top-k gene names
+    # df = pd.DataFrame({"test": gene_list})
+    # gene_plot_name_w2 = df.iloc[top_k_indices]["test"].tolist()
+    #
+    ## Get the corresponding top-k columns from w
+    # matrix_subset = w2[:, top_k_indices]
+    #
+    ## Create a new dataframe with the subset of the matrix and gene names as column names
+    # df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w2)
+    #
+    ## Create violin plot
+    # plt.rcParams["font.size"] = 14
+    # plt.figure(figsize=(10, 6))
+    ## ax = sns.violinplot(data=df_plot.iloc[:,:10], inner="box", stripplot=False)
+    # ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
+    # plt.title("Weight Distribution Top 10 Sender Genes")
+    # plt.xlabel("Genes")
+    # plt.ylabel("W_s Values")
+    #
+    # labels = [item.get_text() for item in ax.get_xticklabels()]
+    #
+    ## Replace labels in list with * if they are in gbm_genes
+    # labels = [label + "*" if label in gbm_genes else label for label in labels]
+    #
+    ## Set the new labels
+    # ax.set_xticklabels(labels)
+    # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
+    # plt.tight_layout()
+    #
+    # plt.show()
+    #
+    # plt.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Violin W_s": wandb.Image("plot.png")})
+    #
+    # df = pd.DataFrame({"Receiver Genes": gene_plot_name_w, "Sender Genes": gene_plot_name_w2})
+    # wandb.log({"Top ten weighted genes": wandb.Table(dataframe=df)})
+    # df = pd.DataFrame({"all_genes": list(set(gene_plot_name_w).union(gene_plot_name_w2))})
+    # wandb.log({"Top ten weighted genes list": wandb.Table(dataframe=df)})
+    # print("done.\n")
+    #
+    # print("Top k most important input genes (Saliency):")
+    #
+    # def compute_saliency(model, data):
+    #    model.eval()
+    #    model.zero_grad()
+    #
+    #    data.x = data.x.clone().detach().requires_grad_(True)
+    #
+    #    # Forward pass through the model
+    #    output = model(data.x, data.edge_index)[0]
+    #    if model_type in ["GAT_negbin", "GAT_linear_negbin"]:
+    #        output, _ = output
+    #
+    #    output = torch.sum(output)
+    #
+    #    output.backward()
+    #
+    #    saliency = data.x.grad.detach().abs()
+    #
+    #    return saliency.cpu().numpy()
+    #
+    ## Get saliency
+    # sal = compute_saliency(model, data)
+    #
+    ## Get sum of each column (each gene across all rows)
+    # sums = sal.sum(axis=0)
+    #
+    ## Get indices that would sort the sums in descending order
+    # sorted_indices = sums.argsort()[::-1]
+    #
+    ## Get the top-k indices
+    # top_k_indices = sorted_indices[:k]
+    #
+    ## Get the corresponding top-k gene names
+    # df = pd.DataFrame({"test": gene_list})
+    # gene_plot_name_w = df.iloc[top_k_indices]["test"].tolist()
+    #
+    ## Get the corresponding top-k columns from w
+    # matrix_subset = sal[:, top_k_indices]
+    #
+    ## Create a new dataframe with' the subset of the matrix and gene names as column names
+    # df_plot = pd.DataFrame(matrix_subset, columns=gene_plot_name_w)
+    #
+    # plt.rcParams["font.size"] = 14
+    # plt.figure(figsize=(10, 6))
+    # ax = sns.boxplot(data=df_plot.iloc[:, :10], color="tab:blue", showfliers=False)
+    ## ax = sns.boxplot(data=df_plot.iloc[:,:])
+    # plt.title("Saliency Distributions Top 10 Input Genes")
+    # plt.xlabel("Genes")
+    # plt.ylabel("Saliency Scores")
+    #
+    # labels = [item.get_text() for item in ax.get_xticklabels()]
+    #
+    ## Replace labels in list with * if they are in gbm_genes
+    # labels = [label + "*" if label in gbm_genes else label for label in labels]
+    #
+    ## Set the new labels
+    # ax.set_xticklabels(labels)
+    # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
+    # plt.tight_layout()
+    #
+    # plt.savefig("plot.png", format="png", bbox_inches="tight")
+    # wandb.log({"Saliency Boxplots": wandb.Image("plot.png")})
+    #
+    # df = pd.DataFrame({"all_genes": gene_plot_name_w})
+    # wandb.log({"Top ten input genes list (Saliency Scores)": wandb.Table(dataframe=df)})
+    # print("done.\n")
 
     return model, data
