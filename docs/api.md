@@ -11,7 +11,7 @@
 
     pp.pre_clustering
     pp._r_squared_linreg
-    pp.NegLogNegBinLoss
+
 ```
 
 ## Tools
@@ -29,10 +29,7 @@
     tl._svg_detection
     tl.getComGenes
     tl.learn_model
-    tl.GAT
-    tl.GAT_linear
-    tl.GAT_linear_negbin
-    tl.GAT_negbin
+
 ```
 
 ## Plotting
