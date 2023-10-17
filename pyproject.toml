@@ -52,6 +52,7 @@ doc = [
     "ipykernel",
     "ipython",
     "sphinx-copybutton",
+    "sphinx-rtd-theme"
 
 ]
 test = [
