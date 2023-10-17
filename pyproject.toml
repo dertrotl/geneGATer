@@ -20,7 +20,18 @@ urls.Source = "https://github.com/dertrotl/geneGATer"
 urls.Home-page = "https://github.com/dertrotl/geneGATer"
 dependencies = [
     "anndata",
-    "session-info"
+    "session-info",
+    "seaborn",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "torch_geometric",
+    "umap-learn",
+    "umap",
+    "scanpy",
+    "squidpy",
+    "wandb"
+
 ]
 
 
