@@ -54,8 +54,8 @@ If you found a bug, please use the [issue tracker][issue-tracker].
 
 [scverse-discourse]: https://discourse.scverse.org/
 [issue-tracker]: https://github.com/dertrotl/geneGATer/issues
-[changelog]: https://geneGATer.readthedocs.io/latest/changelog.html
-[link-docs]: https://geneGATer.readthedocs.io
-[link-api]: https://geneGATer.readthedocs.io/latest/api.html
+[changelog]: https://genegater.readthedocs.io/latest/changelog.html
+[link-docs]: https://genegater.readthedocs.io
+[link-api]: https://genegater.readthedocs.io/en/latest/api.html
 [link-tutorial]: https://genegater.readthedocs.io/en/latest/notebooks/geneGATer_tutorial.html
 [link-thesis]: https://drive.google.com/file/d/1lnRbx0mPHqJODJNX0HSQi0aJ33nlbPxb/view?usp=sharing
