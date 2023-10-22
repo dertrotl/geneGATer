@@ -455,6 +455,8 @@ def learn_model(
 
     # Build, train and analyze the model with the pipeline
     model = model_pipeline(config, data, project)
+
+    wandb.unwatch()
     wandb.finish()
     #
     # print("Create Attention Matrix plot...")
