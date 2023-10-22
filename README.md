@@ -15,7 +15,7 @@ The package is the result of the authors master thesis which can be found [here]
 
 Please refer to the [documentation][link-docs]. In particular, the
 
--   [API documentation][link-api].
+-   [API documentation][link-api],
 -   [Tutorial notebook][link-tutorial].
 
 ## Installation
