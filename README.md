@@ -9,13 +9,14 @@
 
 geneGATer is a Python package designed to facilitate the identification and ranking of potential communication genes from spatial transcriptomics data. The package integrates an adapted metagene construction method by Hue et al. [2022] and a Graph Attention Network (GAT) to enable the exploration of cell-to-cell communication without relying on explicit cell-type annotations.
 
-The package is the result of the authors master thesis which can be found soon here. By employing geneGATer, researchers can efficiently recreate the pipeline showcased in the associated thesis. The package also includes visualization tools to aid in the interpretation of the results, providing a comprehensive framework for studying intricate cellular communication networks.
+The package is the result of the authors master thesis which can be found [here][link-thesis]. By employing geneGATer, researchers can efficiently recreate the pipeline showcased in the associated thesis. The package also includes visualization tools to aid in the interpretation of the results, providing a comprehensive framework for studying intricate cellular communication networks.
 
 ## Getting started
 
 Please refer to the [documentation][link-docs]. In particular, the
 
 -   [API documentation][link-api].
+-   [Tutorial notebook][link-tutorial].
 
 ## Installation
 
@@ -49,10 +50,12 @@ If you found a bug, please use the [issue tracker][issue-tracker].
 
 ## Citation
 
-> t.b.a
+> Analysis and Methods in Glioblastoma Spatial Transcriptomics, Benjamin Weinert, 2023.
 
 [scverse-discourse]: https://discourse.scverse.org/
 [issue-tracker]: https://github.com/dertrotl/geneGATer/issues
 [changelog]: https://geneGATer.readthedocs.io/latest/changelog.html
 [link-docs]: https://geneGATer.readthedocs.io
 [link-api]: https://geneGATer.readthedocs.io/latest/api.html
+[link-tutorial]: https://genegater.readthedocs.io/en/latest/notebooks/geneGATer_tutorial.html
+[link-thesis]: https://drive.google.com/file/d/1lnRbx0mPHqJODJNX0HSQi0aJ33nlbPxb/view?usp=sharing
