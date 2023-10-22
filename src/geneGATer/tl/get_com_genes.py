@@ -476,7 +476,7 @@ def getComGenes(
     """
     median_metric_df = pd.DataFrame()
     min_metric_df = pd.DataFrame()
-    clusters = adata.obs["cluster"].cat.categories
+    clusters = adata.obs[groupby].cat.categories
     all_genes = []
     metagenes_total = {}
     genes_in_metagenes_total = {}
