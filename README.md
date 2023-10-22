@@ -5,7 +5,7 @@
 
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/dertrotl/geneGATer/test.yaml?branch=main
 [link-tests]: https://github.com/dertrotl/geneGATer/actions/workflows/test.yml
-[badge-docs]: https://img.shields.io/readthedocs/geneGATer
+[badge-docs]: https://img.shields.io/readthedocs/genegater
 
 Pipeline to identify communication genes and rank them by their importance.
 
