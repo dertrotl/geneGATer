@@ -1,4 +1,4 @@
-# geneGATer
+# geneGATer: Uncovering Cell-Cell Communication Genes from Spatial Transcriptomics Data
 
 [![Tests][badge-tests]][link-tests]
 [![Documentation][badge-docs]][link-docs]
@@ -7,7 +7,9 @@
 [link-tests]: https://github.com/dertrotl/geneGATer/actions/workflows/test.yml
 [badge-docs]: https://img.shields.io/readthedocs/genegater
 
-Pipeline to identify communication genes and rank them by their importance.
+geneGATer is a Python package designed to facilitate the identification and ranking of potential communication genes from spatial transcriptomics data. The package integrates an adapted metagene construction method by Hue et al. [2022] and a Graph Attention Network (GAT) to enable the exploration of cell-to-cell communication without relying on explicit cell-type annotations.
+
+The package is the result of the authors master thesis which can be found soon here. By employing geneGATer, researchers can efficiently recreate the pipeline showcased in the associated thesis. The package also includes visualization tools to aid in the interpretation of the results, providing a comprehensive framework for studying intricate cellular communication networks.
 
 ## Getting started
 

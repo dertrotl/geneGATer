@@ -27,7 +27,6 @@ dependencies = [
     "torchaudio",
     "torch_geometric",
     "umap-learn",
-    "umap",
     "scanpy",
     "squidpy",
     "wandb"
