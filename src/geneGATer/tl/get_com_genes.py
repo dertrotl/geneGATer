@@ -351,7 +351,7 @@ def _metagene_detection(
 
 
 def _get_quality_metric(
-    adata, raw_cluster, main_cluster, tresh, groupby, plot=False, verbosse=True, library_key="sample_name"
+    adata, raw_cluster, main_cluster, tresh, groupby, iter_k, plot=False, verbosse=True, library_key="sample_name"
 ):
     metagenes_per_comb = pd.DataFrame()
     genes_of_metagenes = {}
@@ -363,7 +363,7 @@ def _get_quality_metric(
     spots_above_median = {}
     spots_above_min = {}
 
-    for cluster in tqdm(clusters):
+    for cluster in tqdm(clusters[iter_k:]):
         b = 0
         stop = 0
         while (stop != 1) and (b != 5):
@@ -480,6 +480,7 @@ def getComGenes(
     all_genes = []
     metagenes_total = {}
     genes_in_metagenes_total = {}
+    iter_k = 0
 
     for cluster in clusters:
         metagene_per_comb, genes_of_metagenes, spots_above_median, spots_above_min = _get_quality_metric(
@@ -491,6 +492,7 @@ def getComGenes(
             plot=plot,
             verbosse=verbosse,
             library_key=library_key,
+            iter_k=iter_k,
         )
         median_metric_df[cluster] = spots_above_median
         min_metric_df[cluster] = spots_above_min
@@ -500,6 +502,8 @@ def getComGenes(
 
         for keys in genes_of_metagenes.keys():
             all_genes.append(genes_of_metagenes[keys].tolist())
+
+        iter_k += 1
 
     all_genes = list(set(sum(all_genes, [])))
 
