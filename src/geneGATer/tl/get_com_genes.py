@@ -360,7 +360,6 @@ def _get_quality_metric(
     codes = np.unique(codes[codes != main_cluster])
     spots_above_median = {}
     spots_above_min = {}
-
     for cluster in tqdm(clusters[iter_k:]):
         b = 0
         stop = 0

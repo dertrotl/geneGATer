@@ -4,7 +4,7 @@ requires = ["hatchling"]
 
 [project]
 name = "geneGATer"
-version = "0.0.2"
+version = "0.0.3"
 description = "Pipeline to identify communication genes and rank them by their importance."
 readme = "README.md"
 requires-python = ">=3.9"
