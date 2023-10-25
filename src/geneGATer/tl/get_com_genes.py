@@ -355,11 +355,9 @@ def _get_quality_metric(
 ):
     metagenes_per_comb = pd.DataFrame()
     genes_of_metagenes = {}
-    main_cluster = main_cluster
     clusters = adata.obs[groupby].cat.categories
-    code = adata.obs[groupby].cat.categories.get_loc(main_cluster)
     codes = adata.obs[groupby].cat.codes
-    codes = np.unique(codes[codes != code])
+    codes = np.unique(codes[codes != main_cluster])
     spots_above_median = {}
     spots_above_min = {}
 
@@ -431,7 +429,7 @@ def _get_quality_metric(
             except IndexError:
                 if verbosse is True:
                     print("Error: No control group found or base gene found. -> No Metagene found!")
-                b = b + 1
+                b += 1
 
     return metagenes_per_comb, genes_of_metagenes, spots_above_median, spots_above_min
 
@@ -483,16 +481,21 @@ def getComGenes(
     iter_k = 0
 
     for cluster in clusters:
-        metagene_per_comb, genes_of_metagenes, spots_above_median, spots_above_min = _get_quality_metric(
+        (
+            metagene_per_comb,
+            genes_of_metagenes,
+            spots_above_median,
+            spots_above_min,
+        ) = _get_quality_metric(
             adata,
             raw_cluster,
             main_cluster=cluster,
             tresh=tresh,
             groupby=groupby,
+            iter_k=iter_k,
             plot=plot,
             verbosse=verbosse,
             library_key=library_key,
-            iter_k=iter_k,
         )
         median_metric_df[cluster] = spots_above_median
         min_metric_df[cluster] = spots_above_min
@@ -501,10 +504,10 @@ def getComGenes(
         genes_in_metagenes_total[cluster] = genes_of_metagenes
 
         for keys in genes_of_metagenes.keys():
-            all_genes.append(genes_of_metagenes[keys].tolist())
+            all_genes.extend(genes_of_metagenes[keys].tolist())
 
         iter_k += 1
 
-    all_genes = list(set(sum(all_genes, [])))
+    all_genes = list(set(all_genes))
 
     return median_metric_df, min_metric_df, metagenes_total, genes_in_metagenes_total, all_genes
